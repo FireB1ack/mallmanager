@@ -35,10 +35,12 @@
               msg, status
             }
           } = res.data;
-          console.log(data);
           if (status == 200) {
             //登陆成功
             this.$message.success(msg);
+            //存储token
+            localStorage.setItem("token", data.token);
+            console.log('localStorage:'+localStorage.getItem("token"));
             //跳转首页
             this.$router.push({name:'home'})
           } else {
