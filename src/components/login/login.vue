@@ -11,7 +11,6 @@
       </el-form-item>
       <el-button @click.prevent="handleLogin()" type="primary" class="login-btn">登陆</el-button>
     </el-form>
-
   </div>
 </template>
 
