@@ -21,7 +21,7 @@
     </el-header>
     <el-container>
       <el-aside width="200px" class="container-aside">
-        <el-menu unique-opened="true" router="true"
+        <el-menu :unique-opened="true" :router="true"
                  default-active="2"
                  class="el-menu-vertical-demo">
           <el-submenu index="1">
@@ -29,7 +29,7 @@
               <i class="el-icon-user-solid"></i>
               <span>用户管理</span>
             </template>
-            <el-menu-item index="1-1">
+            <el-menu-item index="users">
               <i class="el-icon-menu"></i>
               <span slot="title">用户列表</span>
             </el-menu-item>
@@ -88,7 +88,9 @@
           </el-submenu>
         </el-menu>
       </el-aside>
-      <el-main calss="container-main">Main</el-main>
+      <el-main calss="container-main">
+        <router-view></router-view>
+      </el-main>
     </el-container>
   </el-container>
 </template>
@@ -147,10 +149,6 @@
 
   .container-aside {
     background-color: #D3DCE6;
-  }
-
-  .container-main {
-    background-color: #E9EEF3;
   }
 
 </style>
