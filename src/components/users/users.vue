@@ -35,11 +35,46 @@
         label="电话">
       </el-table-column>
       <el-table-column
-        prop="type"
+        label="创建时间">
+        <template slot-scope="scope">
+          {{scope.row.create_time | dateFormate('YYYY-MM-DD')}}
+        </template>
+      </el-table-column>
+      <el-table-column
         label="用户状态">
+        <template slot-scope="scope">
+          <el-switch
+            v-model="scope.row.mg_state"
+            active-color="#13ce66"
+            inactive-color="#ff4949">
+          </el-switch>
+        </template>
       </el-table-column>
       <el-table-column
         label="操作">
+        <template slot-scope="scope">
+          <el-button
+            size="mini"
+            type="primary"
+            icon="el-icon-edit"
+            circle
+            plain>
+          </el-button>
+          <el-button
+            size="mini"
+            type="danger"
+            icon="el-icon-delete"
+            circle
+            plain>
+          </el-button>
+          <el-button
+            size="mini"
+            type="success"
+            icon="el-icon-check"
+            circle
+            plain>
+          </el-button>
+        </template>
       </el-table-column>
     </el-table>
   </el-card>
@@ -52,23 +87,8 @@
         searchVal: '',
         pagenum: 1,
         pagesize: 10,
-        tableData: [{
-          date: '2016-05-02',
-          name: '王小虎',
-          address: '上海市普陀区金沙江路 1518 弄'
-        }, {
-          date: '2016-05-04',
-          name: '王小虎',
-          address: '上海市普陀区金沙江路 1517 弄'
-        }, {
-          date: '2016-05-01',
-          name: '王小虎',
-          address: '上海市普陀区金沙江路 1519 弄'
-        }, {
-          date: '2016-05-03',
-          name: '王小虎',
-          address: '上海市普陀区金沙江路 1516 弄'
-        }]
+        total: '',
+        tableData: []
       }
     },
     created() {
@@ -82,8 +102,14 @@
         //获取用户列表
         const res = await this.$axios.get(`users?query=${this.searchVal}&pagenum=${this.pagenum}&pagesize=${this.pagesize}`);
         console.log(res);
-        const {data: {pagenum, total, users}, meta: {msg, status}} = res.data;
-        this.tableData = users
+        const {data: {total, users}, meta: {msg, status}} = res.data;
+        if (status === 200) {
+          this.tableData = users;
+          this.total = total;
+          this.$message.success(msg)
+        } else {
+          this.$message.warning(msg)
+        }
       }
     }
   }
