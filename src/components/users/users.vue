@@ -7,8 +7,8 @@
     </el-breadcrumb>
     <el-row style="margin-top: 15px;margin-bottom: 15px">
       <el-col :span="24">
-        <el-input placeholder="请输入内容" v-model="searchVal" class="search-input">
-          <el-button slot="append" icon="el-icon-search"></el-button>
+        <el-input clearable @clear="handleClearVal" placeholder="请输入内容" v-model="searchVal" class="search-input">
+          <el-button slot="append" @click.prevent="handleSearch" icon="el-icon-search"></el-button>
         </el-input>
         <el-button type="primary">添加用户</el-button>
       </el-col>
@@ -77,6 +77,15 @@
         </template>
       </el-table-column>
     </el-table>
+    <el-pagination
+      @size-change="handleSizeChange"
+      @current-change="handleCurrentChange"
+      :current-page="pagenum"
+      :page-sizes="[2, 4, 6, 8]"
+      :page-size="pagesize"
+      layout="total, sizes, prev, pager, next, jumper"
+      :total="total">
+    </el-pagination>
   </el-card>
 </template>
 
@@ -86,7 +95,7 @@
       return {
         searchVal: '',
         pagenum: 1,
-        pagesize: 10,
+        pagesize: 2,
         total: '',
         tableData: []
       }
@@ -95,6 +104,21 @@
       this.getUserList()
     },
     methods: {
+      handleSearch() {
+        this.getUserList()
+      },
+      handleCurrentChange(val) {
+        this.pagenum = val;
+        this.getUserList()
+      },
+      handleClearVal() {
+        this.getUserList()
+      },
+      handleSizeChange(val) {
+        this.pagesize = val;
+        this.pagenum = 1;
+        this.getUserList()
+      },
       async getUserList() {
         //设置token
         this.$axios.defaults.headers.common['Authorization'] = localStorage.getItem("token");
