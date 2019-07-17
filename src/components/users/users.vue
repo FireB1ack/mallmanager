@@ -10,7 +10,7 @@
         <el-input clearable @clear="handleClearVal" placeholder="请输入内容" v-model="searchVal" class="search-input">
           <el-button slot="append" @click.prevent="handleSearch" icon="el-icon-search"></el-button>
         </el-input>
-        <el-button type="primary">添加用户</el-button>
+        <el-button type="primary" @click="dialogFormVisible = true">添加用户</el-button>
       </el-col>
     </el-row>
     <el-table
@@ -86,6 +86,27 @@
       layout="total, sizes, prev, pager, next, jumper"
       :total="total">
     </el-pagination>
+
+    <el-dialog title="增加用户" :visible.sync="dialogFormVisible">
+      <el-form :model="form">
+        <el-form-item label="用户名" :label-width="formLabelWidth">
+          <el-input v-model="form.username" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="密码" :label-width="formLabelWidth">
+          <el-input v-model="form.password" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="邮箱" :label-width="formLabelWidth">
+          <el-input v-model="form.email" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="电话" :label-width="formLabelWidth">
+          <el-input v-model="form.mobile" autocomplete="off"></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogFormVisible = false">取 消</el-button>
+        <el-button type="primary" @click="addUser()">确 定</el-button>
+      </div>
+    </el-dialog>
   </el-card>
 </template>
 
@@ -97,13 +118,31 @@
         pagenum: 1,
         pagesize: 2,
         total: '',
-        tableData: []
+        tableData: [],
+        dialogFormVisible: false,
+        formLabelWidth: '100px',
+        form: {}
       }
     },
     created() {
       this.getUserList()
     },
     methods: {
+      async addUser() {
+        this.dialogFormVisible = false;
+        const res = await this.$axios.post('users', this.form);
+        const {meta: {msg, status}, data} = res.data;
+        console.log(data);
+        if (status === 201) {
+          this.$message.success(msg);
+          this.getUserList();
+          this.form = {}
+        } else {
+          this.$message.warning(msg);
+          this.form = {};
+        }
+      }
+      ,
       handleSearch() {
         this.getUserList()
       },
@@ -125,7 +164,6 @@
 
         //获取用户列表
         const res = await this.$axios.get(`users?query=${this.searchVal}&pagenum=${this.pagenum}&pagesize=${this.pagesize}`);
-        console.log(res);
         const {data: {total, users}, meta: {msg, status}} = res.data;
         if (status === 200) {
           this.tableData = users;
