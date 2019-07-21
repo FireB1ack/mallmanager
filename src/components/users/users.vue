@@ -57,12 +57,14 @@
             size="mini"
             type="primary"
             icon="el-icon-edit"
+            @click="showEditUser(scope.row)"
             circle
             plain>
           </el-button>
           <el-button
             size="mini"
             type="danger"
+            @click="deleteUserByid(scope.row.id)"
             icon="el-icon-delete"
             circle
             plain>
@@ -107,6 +109,23 @@
         <el-button type="primary" @click="addUser()">确 定</el-button>
       </div>
     </el-dialog>
+    <el-dialog title="编辑用户" :visible.sync="editFormVisible">
+      <el-form :model="form">
+        <el-form-item label="用户名" :label-width="formLabelWidth">
+          <el-input disabled v-model="form.username" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="邮箱" :label-width="formLabelWidth">
+          <el-input v-model="form.email" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="电话" :label-width="formLabelWidth">
+          <el-input v-model="form.mobile" autocomplete="off"></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="editFormVisible = false">取 消</el-button>
+        <el-button type="primary" @click="editUser(form.id)">确 定</el-button>
+      </div>
+    </el-dialog>
   </el-card>
 </template>
 
@@ -117,9 +136,10 @@
         searchVal: '',
         pagenum: 1,
         pagesize: 2,
-        total: '',
+        total: 0,
         tableData: [],
         dialogFormVisible: false,
+        editFormVisible: false,
         formLabelWidth: '100px',
         form: {}
       }
@@ -172,7 +192,51 @@
         } else {
           this.$message.warning(msg)
         }
+      },
+      deleteUserByid(id) {
+        this.$confirm('是否确认删除该用户?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'info'
+        }).then(async () => {
+          //删除用户
+          const res = await this.$axios.delete(`users/${id}`);
+          const {meta: {msg, status}} = res.data;
+          if (status === 200) {
+            this.$message.success(msg);
+            this.pagenum = 1;
+            this.getUserList()
+          } else {
+            this.$message.warning(msg)
+          }
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消删除'
+          });
+        });
+
+      },
+      showEditUser(user) {
+        //编辑用户
+        this.form = user;
+        this.editFormVisible = true
+      },
+      async editUser(id) {
+        this.editFormVisible = false;
+        const res = await this.$axios.put(`users/${id}`, {
+          email: this.form.email,
+          mobile: this.form.mobile
+        });
+        const {meta: {msg, status}} = res.data;
+        if (status === 200) {
+          this.$message.success(msg);
+          this.getUserList()
+        } else {
+          this.$message.warning(msg)
+        }
       }
+
     }
   }
 </script>
