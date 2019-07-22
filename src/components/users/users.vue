@@ -46,6 +46,7 @@
           <el-switch
             v-model="scope.row.mg_state"
             active-color="#13ce66"
+            @change="changeUserState(scope.row)"
             inactive-color="#ff4949">
           </el-switch>
         </template>
@@ -72,6 +73,7 @@
           <el-button
             size="mini"
             type="success"
+            @click="showRoleDialog(scope.row)"
             icon="el-icon-check"
             circle
             plain>
@@ -126,6 +128,24 @@
         <el-button type="primary" @click="editUser(form.id)">确 定</el-button>
       </div>
     </el-dialog>
+    <el-dialog title="分配角色" :visible.sync="roleFormVisible">
+      <el-form>
+        <el-form-item label="用户名" label-width="100px">
+          {{currentUserName}}
+        </el-form-item>
+        <el-form-item label="角色" label-width="100px">
+          <el-select v-model="currentRoleId">
+            <el-option disabled="" label="请选择" :value="-1"></el-option>
+            <el-option v-for="(item,index) in roleList" :key="index" :label="item.roleName"
+                       :value="item.id"></el-option>
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="roleFormVisible = false">取 消</el-button>
+        <el-button type="primary" @click="editRole()">确 定</el-button>
+      </div>
+    </el-dialog>
   </el-card>
 </template>
 
@@ -140,14 +160,31 @@
         tableData: [],
         dialogFormVisible: false,
         editFormVisible: false,
+        roleFormVisible: false,
         formLabelWidth: '100px',
-        form: {}
+        form: {},
+        currentRoleId: -1,
+        currentUserName: '',
+        roleList: []
       }
     },
     created() {
       this.getUserList()
     },
     methods: {
+      async editRole() {
+        //  编辑角色
+        const res = await this.$axios.put(`users/${this.form.id}/role`, {
+          rid: this.currentRoleId
+        });
+        const {meta: {msg, status}} = res.data;
+        if (status === 200) {
+          this.$message.success(msg)
+        } else {
+          this.$message.warning(msg)
+        }
+        this.roleFormVisible = false;
+      },
       async addUser() {
         this.dialogFormVisible = false;
         const res = await this.$axios.post('users', this.form);
@@ -235,8 +272,32 @@
         } else {
           this.$message.warning(msg)
         }
+      },
+      async showRoleDialog(user) {
+        //通过id查询当前用户信息
+        this.form = user;
+        const res = await this.$axios.get(`users/${user.id}`);
+        const {meta: {status}, data: {rid, username}} = res.data;
+        if (status === 200) {
+          this.currentRoleId = rid;
+          this.currentUserName = username
+        }
+        //获取下拉框列表
+        const res_role = await this.$axios.get('roles');
+        this.roleList = res_role.data.data;
+        console.log(res_role);
+        this.roleFormVisible = true
+      },
+      async changeUserState(user) {
+        //改变用户状态
+        const res = await this.$axios.put(`users/${user.id}/state/${user.mg_state}`);
+        const {meta: {msg, status}} = res.data;
+        if (status === 200) {
+          this.$message.success(msg)
+        } else {
+          this.$message.warning(msg)
+        }
       }
-
     }
   }
 </script>
