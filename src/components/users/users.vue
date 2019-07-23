@@ -216,8 +216,6 @@
         this.getUserList()
       },
       async getUserList() {
-        //设置token
-        this.$axios.defaults.headers.common['Authorization'] = localStorage.getItem("token");
 
         //获取用户列表
         const res = await this.$axios.get(`users?query=${this.searchVal}&pagenum=${this.pagenum}&pagesize=${this.pagesize}`);
