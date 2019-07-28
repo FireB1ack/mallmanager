@@ -188,8 +188,7 @@
       async addUser() {
         this.dialogFormVisible = false;
         const res = await this.$axios.post('users', this.form);
-        const {meta: {msg, status}, data} = res.data;
-        console.log(data);
+        const {meta: {msg, status}} = res.data;
         if (status === 201) {
           this.$message.success(msg);
           this.getUserList();
@@ -283,7 +282,6 @@
         //获取下拉框列表
         const res_role = await this.$axios.get('roles');
         this.roleList = res_role.data.data;
-        console.log(res_role);
         this.roleFormVisible = true
       },
       async changeUserState(user) {

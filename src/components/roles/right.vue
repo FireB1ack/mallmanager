@@ -44,7 +44,6 @@
       async getRightList() {
         const res = await this.$axios.get('rights/list');
         this.tableData = res.data.data;
-        console.log(res)
       }
     }
   }

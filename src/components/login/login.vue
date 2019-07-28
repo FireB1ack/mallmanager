@@ -28,7 +28,6 @@
       //处理登陆方法
       handleLogin() {
         this.$axios.put('login', this.formData).then((res) => {
-          // console.log(res);
           const {
             data, meta: {
               msg, status
@@ -39,7 +38,6 @@
             this.$message.success(msg);
             //存储token
             localStorage.setItem("token", data.token);
-            console.log('localStorage:'+localStorage.getItem("token"));
             //跳转首页
             this.$router.push({name:'home'})
           } else {

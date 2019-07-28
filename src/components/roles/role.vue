@@ -67,6 +67,7 @@
           <el-button
             size="mini"
             type="success"
+            @click="showEditRoleDialog(scope.row)"
             icon="el-icon-check"
             circle
             plain>
@@ -74,6 +75,24 @@
         </template>
       </el-table-column>
     </el-table>
+
+    <el-dialog title="编辑权限" :visible.sync="editRightDialogFormVisible">
+      <!--      :default-expanded-keys="[2, 3]"
+              :default-checked-keys="[5]"-->
+      <el-tree
+        ref="tree"
+        :data="rightList"
+        show-checkbox
+        :default-expand-all="true"
+        :default-checked-keys="arrChecked"
+        node-key="id"
+        :props="defaultProps">
+      </el-tree>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="editRightDialogFormVisible = false">取 消</el-button>
+        <el-button type="primary" @click="editCurrentRights()">确 定</el-button>
+      </div>
+    </el-dialog>
   </el-card>
 </template>
 
@@ -81,7 +100,18 @@
   export default {
     name: "role",
     data() {
-      return {roleDataList: []}
+      return {
+        roleDataList: [],
+        editRightDialogFormVisible: false,
+        //权限列表
+        rightList: [],
+        defaultProps: {
+          children: 'children',
+          label: 'authName'
+        },
+        arrChecked: [],
+        currentRole: {}
+      }
     },
     mounted() {
       this.getRoleList()
@@ -103,6 +133,44 @@
         } else {
           this.$message.warning(msg);
         }
+      },
+      async showEditRoleDialog(row) {
+        this.currentRole = row;
+        //获取所有权限树形列表
+        const res = await this.$axios.get('rights/tree');
+        const {meta: {msg, status}, data} = res.data;
+        if (status == 200) {
+          this.rightList = data;
+          this.$message.success(msg)
+        }
+        var arr = [];
+        //设置默认选中项
+        row.children.forEach((item1) => {
+          item1.children.forEach((item2) => {
+            item2.children.forEach((item3) => {
+              arr.push(item3.id)
+            })
+          })
+        });
+        this.arrChecked = arr;
+        this.editRightDialogFormVisible = true
+      },
+      //编辑当前角色权限
+      async editCurrentRights() {
+        var arr1 = this.$refs.tree.getCheckedKeys();
+        var arr2 = this.$refs.tree.getHalfCheckedKeys();
+        var arr = [...arr1, ...arr2];
+        const res = await this.$axios.post(`roles/${this.currentRole.id}/rights`, {
+          rids: arr.join(",")
+        });
+        const {meta: {msg, status}} = res.data;
+        if (status == 200) {
+          this.$message.success(msg);
+        } else {
+          this.$message.warning(msg)
+        }
+        this.editRightDialogFormVisible = false;
+        this.getRoleList();
       }
     }
   }

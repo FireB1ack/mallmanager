@@ -21,10 +21,10 @@ axios.defaults.baseURL = "http://localhost:8888/api/private/v1/";
 Vue.prototype.$axios = axios;
 // 添加请求拦截器
 axios.interceptors.request.use(function (config) {
-  console.log(config.url);
   if (config.url != 'login') {
     //在请求前 设置token
-    config.headers.common['Authorization'] = localStorage.getItem("token");
+    var token = localStorage.getItem("token");
+    config.headers.common['Authorization'] = token;
   }
   return config;
 }, function (error) {
