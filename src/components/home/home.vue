@@ -51,12 +51,7 @@
       }
     },
     beforeCreate() {
-      //进行首页权限验证，如果不通过重新登陆
-      const token = localStorage.getItem("token");
-      if (!token) {
-        this.$router.push({name: 'login'});
-        this.$message.warning('请先登陆')
-      }
+
     },
     created() {
       this.getMenus()
